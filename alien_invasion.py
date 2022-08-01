@@ -21,17 +21,21 @@ class AlienInvasion:
     def run_game(self):
         """开始游戏的主循环"""
         while True:
-            # 监听键盘和鼠标事件
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-            
-            # 重新设定屏幕
-            self.screen.fill(self.settings.bg_color)
-            self.ship.blitme()
+            self._check_events()
+            self._update_screen()
 
-            # 显示最新绘制的屏幕
-            pygame.display.flip()
+    def _check_events(self):
+        """响应键盘和鼠标事件"""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+    def _update_screen(self):
+        """更新屏幕图像，并刷新屏幕"""
+        self.screen.fill(self.settings.bg_color)
+        self.ship.blitme()
+
+        pygame.display.flip()
 
 if __name__ == "__main__":
     ai = AlienInvasion()
