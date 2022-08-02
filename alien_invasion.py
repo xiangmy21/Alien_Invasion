@@ -17,6 +17,7 @@ class AlienInvasion:
     def __init__(self):
         """初始化游戏并创建游戏资源"""
         pygame.init()
+        pygame.mixer.init()
         self.settings = Settings()
 
         # 设定窗口
@@ -37,6 +38,15 @@ class AlienInvasion:
 
         # 创建Play按钮
         self.play_button = Button(self, 'Play')
+
+        # 设定背景音乐
+        pygame.mixer.music.load("musics/游戏的音乐.mp3")
+        pygame.mixer.music.set_volume(0.1)
+        # pygame.mixer.music.play(-1)
+        # 绑定音效对象
+        self.boom_sound = pygame.mixer.Sound("musics/隆隆声.wav")
+        self.lose_sound = pygame.mixer.Sound("musics/游戏结束.mp3")
+        self.dead_sound = pygame.mixer.Sound("musics/掉一条命.wav")
 
     def run_game(self):
         """开始游戏的主循环"""
@@ -76,6 +86,10 @@ class AlienInvasion:
             self.ship.moving_right = True
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = True
+        elif event.key == pygame.K_UP:
+            self.ship.moving_up = True
+        elif event.key == pygame.K_DOWN:
+            self.ship.moving_down = True
         elif event.key == pygame.K_q:
             sys.exit()
         elif event.key == pygame.K_SPACE:
@@ -89,8 +103,15 @@ class AlienInvasion:
             self.ship.moving_right = False
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
+        elif event.key == pygame.K_UP:
+            self.ship.moving_up = False
+        elif event.key == pygame.K_DOWN:
+            self.ship.moving_down = False
 
     def _start_game(self):
+        # 播放背景音乐
+        pygame.mixer.music.play(-1)
+
         # 重置游戏设置
         self.settings.initialize_dynamic_settings()
 
@@ -135,8 +156,10 @@ class AlienInvasion:
         collisions = pygame.sprite.groupcollide(
             self.bullets, self.aliens, True, True
         )
-        # 记分
         if collisions:
+            # 播放爆炸音效
+            self.boom_sound.play()
+            # 更新得分
             for aliens in collisions.values():
                 self.stats.score += self.settings.alien_points * len(aliens)
             self.sb.prep_score()
@@ -167,6 +190,9 @@ class AlienInvasion:
     def _ship_hit(self):
         """响应飞船被外星人撞到"""
         if self.stats.ships_left > 0:
+            # 播放掉一条命音效
+            self.dead_sound.play()
+
             # 飞船剩余数减1并更新记分牌
             self.stats.ships_left -= 1
             self.sb.prep_ships()
@@ -182,6 +208,10 @@ class AlienInvasion:
             # 暂停
             sleep(0.5)
         else:
+            # 停止背景音乐，播放失败音效
+            pygame.mixer.music.stop()
+            self.lose_sound.play()
+            # 设定游戏状态为非活动状态，并恢复鼠标
             self.stats.game_active = False
             pygame.mouse.set_visible(True)
 
