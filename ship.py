@@ -35,7 +35,6 @@ class Ship(Sprite):
         # 根据self.x更新rect对象
         self.rect.x = self.x
 
-
     def blitme(self):
         """在指定位置绘制飞船"""
         self.screen.blit(self.image, self.rect)
